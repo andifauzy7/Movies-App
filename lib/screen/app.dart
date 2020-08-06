@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:moviesapp/constant/constant.dart';
+import 'package:toast/toast.dart';
 
 class App extends StatefulWidget {
   AppState createState() => AppState();
@@ -11,25 +12,24 @@ class App extends StatefulWidget {
 class AppState extends State<App> {
   List data;
 
-  Future<String> getData() async {
+  Future getData() async {
     var res = await http.get(Uri.encodeFull(constant.URL_API),
         headers: {'accept': 'application/json'});
     setState(() {
       var content = json.decode(res.body);
       data = content['results'];
     });
-    return 'success!';
   }
 
   @override
   void initState() {
     super.initState();
-    this.getData();
+    this.getData().catchError((error)=> Toast.show("Pesan : $error", context,
+        duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM));
   }
 
   Widget build(context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'List Movie',
       home: Scaffold(
           appBar: AppBar(
@@ -37,7 +37,6 @@ class AppState extends State<App> {
             leading: Icon(Icons.movie),
           ),
           body: Container(
-            margin: EdgeInsets.all(8.0),
             child: ListView.builder(
               itemCount: data == null ? 0 : data.length,
               itemBuilder: (BuildContext context, int index) {
